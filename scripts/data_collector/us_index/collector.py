@@ -2,6 +2,7 @@
 # Licensed under the MIT License.
 
 import abc
+from functools import partial
 import sys
 import importlib
 from pathlib import Path
@@ -20,6 +21,7 @@ sys.path.append(str(CUR_DIR.parent.parent))
 
 from data_collector.index import IndexBase
 from data_collector.utils import deco_retry, get_calendar_list, get_trading_date_by_shift
+from data_collector.utils import get_instruments
 
 
 WIKI_URL = "https://en.wikipedia.org/wiki"
@@ -37,9 +39,16 @@ class WIKIIndex(IndexBase):
     # https://superuser.com/questions/613313/why-cant-we-make-con-prn-null-folder-in-windows
     INST_PREFIX = ""
 
-    def __init__(self, index_name: str, qlib_dir: [str, Path] = None, request_retry: int = 5, retry_sleep: int = 3):
+    def __init__(
+        self,
+        index_name: str,
+        qlib_dir: [str, Path] = None,
+        freq: str = "day",
+        request_retry: int = 5,
+        retry_sleep: int = 3,
+    ):
         super(WIKIIndex, self).__init__(
-            index_name=index_name, qlib_dir=qlib_dir, request_retry=request_retry, retry_sleep=retry_sleep
+            index_name=index_name, qlib_dir=qlib_dir, freq=freq, request_retry=request_retry, retry_sleep=retry_sleep
         )
 
         self._target_url = f"{WIKI_URL}/{WIKI_INDEX_NAME_MAP[self.index_name.upper()]}"
@@ -70,6 +79,24 @@ class WIKIIndex(IndexBase):
                 type: str, value from ["add", "remove"]
         """
         raise NotImplementedError("rewrite get_changes")
+
+    def format_datetime(self, inst_df: pd.DataFrame) -> pd.DataFrame:
+        """formatting the datetime in an instrument
+
+        Parameters
+        ----------
+        inst_df: pd.DataFrame
+            inst_df.columns = [self.SYMBOL_FIELD_NAME, self.START_DATE_FIELD, self.END_DATE_FIELD]
+
+        Returns
+        -------
+
+        """
+        if self.freq != "day":
+            inst_df[self.END_DATE_FIELD] = inst_df[self.END_DATE_FIELD].apply(
+                lambda x: (pd.Timestamp(x) + pd.Timedelta(hours=23, minutes=59)).strftime("%Y-%m-%d %H:%M:%S")
+            )
+        return inst_df
 
     @property
     def calendar_list(self) -> List[pd.Timestamp]:
@@ -244,39 +271,6 @@ class SP400Index(WIKIIndex):
         logger.warning(f"No suitable data source has been found!")
 
 
-def get_instruments(
-    qlib_dir: str, index_name: str, method: str = "parse_instruments", request_retry: int = 5, retry_sleep: int = 3
-):
-    """
-
-    Parameters
-    ----------
-    qlib_dir: str
-        qlib data dir, default "Path(__file__).parent/qlib_data"
-    index_name: str
-        index name, value from ["SP500", "NASDAQ100", "DJIA", "SP400"]
-    method: str
-        method, value from ["parse_instruments", "save_new_companies"]
-    request_retry: int
-        request retry, by default 5
-    retry_sleep: int
-        request sleep, by default 3
-
-    Examples
-    -------
-        # parse instruments
-        $ python collector.py --index_name SP500 --qlib_dir ~/.qlib/qlib_data/cn_data --method parse_instruments
-
-        # parse new companies
-        $ python collector.py --index_name SP500 --qlib_dir ~/.qlib/qlib_data/cn_data --method save_new_companies
-
-    """
-    _cur_module = importlib.import_module("collector")
-    obj = getattr(_cur_module, f"{index_name.upper()}Index")(
-        qlib_dir=qlib_dir, index_name=index_name, request_retry=request_retry, retry_sleep=retry_sleep
-    )
-    getattr(obj, method)()
-
 
 if __name__ == "__main__":
-    fire.Fire(get_instruments)
+    fire.Fire(partial(get_instruments, market_index="us_index"))

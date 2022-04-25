@@ -4,7 +4,6 @@
 from __future__ import division
 from __future__ import print_function
 
-import os
 import numpy as np
 import pandas as pd
 from typing import Text, Union
@@ -85,7 +84,7 @@ class SFM_Model(nn.Module):
             if len(self.states) == 0:  # hasn't initialized yet
                 self.init_states(x)
             self.get_constants(x)
-            p_tm1 = self.states[0]
+            p_tm1 = self.states[0]  # noqa: F841
             h_tm1 = self.states[1]
             S_re_tm1 = self.states[2]
             S_im_tm1 = self.states[3]
@@ -374,6 +373,8 @@ class SFM(Model):
             col_set=["feature", "label"],
             data_key=DataHandlerLP.DK_L,
         )
+        if df_train.empty or df_valid.empty:
+            raise ValueError("Empty data from dataset, please check your dataset config.")
         x_train, y_train = df_train["feature"], df_train["label"]
         x_valid, y_valid = df_valid["feature"], df_valid["label"]
 
@@ -433,7 +434,7 @@ class SFM(Model):
 
         mask = torch.isfinite(label)
 
-        if self.metric == "" or self.metric == "loss":
+        if self.metric in ("", "loss"):
             return -self.loss_fn(pred[mask], label[mask])
 
         raise ValueError("unknown metric `%s`" % self.metric)

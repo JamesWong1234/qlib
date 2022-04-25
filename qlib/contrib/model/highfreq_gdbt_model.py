@@ -1,17 +1,18 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
+import warnings
 import numpy as np
 import pandas as pd
 import lightgbm as lgb
 
-from qlib.model.base import ModelFT
-from qlib.data.dataset import DatasetH
-from qlib.data.dataset.handler import DataHandlerLP
-import warnings
+from ...model.base import ModelFT
+from ...data.dataset import DatasetH
+from ...data.dataset.handler import DataHandlerLP
+from ...model.interpret.base import LightGBMFInt
 
 
-class HFLGBModel(ModelFT):
+class HFLGBModel(ModelFT, LightGBMFInt):
     """LightGBM Model for high frequency prediction"""
 
     def __init__(self, loss="mse", **kwargs):
@@ -55,9 +56,9 @@ class HFLGBModel(ModelFT):
 
     def hf_signal_test(self, dataset: DatasetH, threhold=0.2):
         """
-        Test the sigal in high frequency test set
+        Test the signal in high frequency test set
         """
-        if self.model == None:
+        if self.model is None:
             raise ValueError("Model hasn't been trained yet")
         df_test = dataset.prepare("test", col_set=["feature", "label"], data_key=DataHandlerLP.DK_I)
         df_test.dropna(inplace=True)
@@ -81,9 +82,11 @@ class HFLGBModel(ModelFT):
         df_train, df_valid = dataset.prepare(
             ["train", "valid"], col_set=["feature", "label"], data_key=DataHandlerLP.DK_L
         )
+        if df_train.empty or df_valid.empty:
+            raise ValueError("Empty data from dataset, please check your dataset config.")
 
         x_train, y_train = df_train["feature"], df_train["label"]
-        x_valid, y_valid = df_train["feature"], df_valid["label"]
+        x_valid, y_valid = df_valid["feature"], df_valid["label"]
         if y_train.values.ndim == 2 and y_train.values.shape[1] == 1:
             l_name = df_train["label"].columns[0]
             # Convert label into alpha
@@ -97,8 +100,8 @@ class HFLGBModel(ModelFT):
         else:
             raise ValueError("LightGBM doesn't support multi-label training")
 
-        dtrain = lgb.Dataset(x_train.values, label=y_train)
-        dvalid = lgb.Dataset(x_valid.values, label=y_valid)
+        dtrain = lgb.Dataset(x_train, label=y_train)
+        dvalid = lgb.Dataset(x_valid, label=y_valid)
         return dtrain, dvalid
 
     def fit(
@@ -107,20 +110,21 @@ class HFLGBModel(ModelFT):
         num_boost_round=1000,
         early_stopping_rounds=50,
         verbose_eval=20,
-        evals_result=dict(),
-        **kwargs
+        evals_result=None,
     ):
+        if evals_result is None:
+            evals_result = dict()
         dtrain, dvalid = self._prepare_data(dataset)
+        early_stopping_callback = lgb.early_stopping(early_stopping_rounds)
+        verbose_eval_callback = lgb.log_evaluation(period=verbose_eval)
+        evals_result_callback = lgb.record_evaluation(evals_result)
         self.model = lgb.train(
             self.params,
             dtrain,
             num_boost_round=num_boost_round,
             valid_sets=[dtrain, dvalid],
             valid_names=["train", "valid"],
-            early_stopping_rounds=early_stopping_rounds,
-            verbose_eval=verbose_eval,
-            evals_result=evals_result,
-            **kwargs
+            callbacks=[early_stopping_callback, verbose_eval_callback, evals_result_callback],
         )
         evals_result["train"] = list(evals_result["train"].values())[0]
         evals_result["valid"] = list(evals_result["valid"].values())[0]
@@ -146,6 +150,7 @@ class HFLGBModel(ModelFT):
         """
         # Based on existing model and finetune by train more rounds
         dtrain, _ = self._prepare_data(dataset)
+        verbose_eval_callback = lgb.log_evaluation(period=verbose_eval)
         self.model = lgb.train(
             self.params,
             dtrain,
@@ -153,5 +158,5 @@ class HFLGBModel(ModelFT):
             init_model=self.model,
             valid_sets=[dtrain],
             valid_names=["train"],
-            verbose_eval=verbose_eval,
+            callbacks=[verbose_eval_callback],
         )
