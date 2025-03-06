@@ -24,7 +24,7 @@ class FileStorageMixin:
 
     """
 
-    # NOTE: provider_uri priority：
+    # NOTE: provider_uri priority:
     #   1. self._provider_uri : if provider_uri is provided.
     #   2. provider_uri in qlib.config.C
 
@@ -102,14 +102,22 @@ class FileCalendarStorage(FileStorageMixin, CalendarStorage):
             self._freq_file_cache = freq
         return self._freq_file_cache
 
-    def _read_calendar(self, skip_rows: int = 0, n_rows: int = None) -> List[CalVT]:
+    def _read_calendar(self) -> List[CalVT]:
+        # NOTE:
+        # if we want to accelerate partial reading calendar
+        # we can add parameters like `skip_rows: int = 0, n_rows: int = None` to the interface.
+        # Currently, it is not supported for the txt-based calendar
+
         if not self.uri.exists():
             self._write_calendar(values=[])
-        with self.uri.open("rb") as fp:
-            return [
-                str(x)
-                for x in np.loadtxt(fp, str, skiprows=skip_rows, max_rows=n_rows, delimiter="\n", encoding="utf-8")
-            ]
+
+        with self.uri.open("r") as fp:
+            res = []
+            for line in fp.readlines():
+                line = line.strip()
+                if len(line) > 0:
+                    res.append(line)
+            return res
 
     def _write_calendar(self, values: Iterable[CalVT], mode: str = "wb"):
         with self.uri.open(mode=mode) as fp:
@@ -182,7 +190,6 @@ class FileCalendarStorage(FileStorageMixin, CalendarStorage):
 
 
 class FileInstrumentStorage(FileStorageMixin, InstrumentStorage):
-
     INSTRUMENT_SEP = "\t"
     INSTRUMENT_START_FIELD = "start_datetime"
     INSTRUMENT_END_FIELD = "end_datetime"
@@ -252,7 +259,6 @@ class FileInstrumentStorage(FileStorageMixin, InstrumentStorage):
         return self._read_instrument()[k]
 
     def update(self, *args, **kwargs) -> None:
-
         if len(args) > 1:
             raise TypeError(f"update expected at most 1 arguments, got {len(args)}")
         inst = self._read_instrument()
@@ -350,7 +356,6 @@ class FileFeatureStorage(FileStorageMixin, FeatureStorage):
         storage_end_index = self.end_index
         with self.uri.open("rb") as fp:
             if isinstance(i, int):
-
                 if storage_start_index > i:
                     raise IndexError(f"{i}: start index is {storage_start_index}")
                 fp.seek(4 * (i - storage_start_index) + 4)

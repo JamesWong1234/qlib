@@ -135,7 +135,7 @@ class DumpDataBase:
 
     def _get_source_data(self, file_path: Path) -> pd.DataFrame:
         df = pd.read_csv(str(file_path.resolve()), low_memory=False)
-        df[self.date_field_name] = df[self.date_field_name].astype(str).astype(np.datetime64)
+        df[self.date_field_name] = df[self.date_field_name].astype(str).astype("datetime64[ns]")
         # df.drop_duplicates([self.date_field_name], inplace=True)
         return df
 
@@ -146,9 +146,7 @@ class DumpDataBase:
         return (
             self._include_fields
             if self._include_fields
-            else set(df_columns) - set(self._exclude_fields)
-            if self._exclude_fields
-            else df_columns
+            else set(df_columns) - set(self._exclude_fields) if self._exclude_fields else df_columns
         )
 
     @staticmethod
@@ -176,7 +174,7 @@ class DumpDataBase:
     def save_calendars(self, calendars_data: list):
         self._calendars_dir.mkdir(parents=True, exist_ok=True)
         calendars_path = str(self._calendars_dir.joinpath(f"{self.freq}.txt").expanduser().resolve())
-        result_calendars_list = list(map(lambda x: self._format_datetime(x), calendars_data))
+        result_calendars_list = [self._format_datetime(x) for x in calendars_data]
         np.savetxt(calendars_path, result_calendars_list, fmt="%s", encoding="utf-8")
 
     def save_instruments(self, instruments_data: Union[list, pd.DataFrame]):
@@ -195,7 +193,7 @@ class DumpDataBase:
     def data_merge_calendar(self, df: pd.DataFrame, calendars_list: List[pd.Timestamp]) -> pd.DataFrame:
         # calendars
         calendars_df = pd.DataFrame(data=calendars_list, columns=[self.date_field_name])
-        calendars_df[self.date_field_name] = calendars_df[self.date_field_name].astype(np.datetime64)
+        calendars_df[self.date_field_name] = calendars_df[self.date_field_name].astype("datetime64[ns]")
         cal_df = calendars_df[
             (calendars_df[self.date_field_name] >= df[self.date_field_name].min())
             & (calendars_df[self.date_field_name] <= df[self.date_field_name].max())
@@ -219,6 +217,9 @@ class DumpDataBase:
             return
         # align index
         _df = self.data_merge_calendar(df, calendar_list)
+        if _df.empty:
+            logger.warning(f"{features_dir.name} data is not in calendars")
+            return
         # used when creating a bin file
         date_index = self.get_datetime_index(_df, calendar_list)
         for field in self.get_dump_fields(_df.columns):
@@ -488,7 +489,7 @@ class DumpDataUpdate(DumpDataBase):
                     except Exception:
                         error_code[futures[_future]] = traceback.format_exc()
                     p_bar.update()
-            logger.info(f"dump bin errors： {error_code}")
+            logger.info(f"dump bin errors: {error_code}")
 
         logger.info("end of features dump.\n")
 

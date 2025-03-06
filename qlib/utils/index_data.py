@@ -2,12 +2,14 @@
 # Licensed under the MIT License.
 """
 Motivation of index_data
-- Pandas has a lot of user-friendly interfaces. However, integrating too much features in a single tool bring to much overhead and makes it much slower than numpy.
+- Pandas has a lot of user-friendly interfaces. However, integrating too much features in a single tool bring too much overhead and makes it much slower than numpy.
     Some users just want a simple numpy dataframe with indices and don't want such a complicated tools.
     Such users are the target of `index_data`
 
 `index_data` try to behave like pandas (some API will be different because we try to be simpler and more intuitive) but don't compromise the performance. It provides the basic numpy data and simple indexing feature. If users call APIs which may compromise the performance, index_data will raise Errors.
 """
+
+from __future__ import annotations
 
 from typing import Dict, Tuple, Union, Callable, List
 import bisect
@@ -16,7 +18,7 @@ import numpy as np
 import pandas as pd
 
 
-def concat(data_list: Union["SingleData"], axis=0) -> "MultiData":
+def concat(data_list: Union[SingleData], axis=0) -> MultiData:
     """concat all SingleData by index.
     TODO: now just for SingleData.
 
@@ -42,7 +44,7 @@ def concat(data_list: Union["SingleData"], axis=0) -> "MultiData":
         all_index_map = dict(zip(all_index, range(len(all_index))))
 
         # concat all
-        tmp_data = np.full((len(all_index), len(data_list)), np.NaN)
+        tmp_data = np.full((len(all_index), len(data_list)), np.nan)
         for data_id, index_data in enumerate(data_list):
             assert isinstance(index_data, SingleData)
             now_data_map = [all_index_map[index] for index in index_data.index]
@@ -52,7 +54,7 @@ def concat(data_list: Union["SingleData"], axis=0) -> "MultiData":
         raise ValueError(f"axis must be 0 or 1")
 
 
-def sum_by_index(data_list: Union["SingleData"], new_index: list, fill_value=0) -> "SingleData":
+def sum_by_index(data_list: Union[SingleData], new_index: list, fill_value=0) -> SingleData:
     """concat all SingleData by new index.
 
     Parameters
@@ -62,7 +64,7 @@ def sum_by_index(data_list: Union["SingleData"], new_index: list, fill_value=0) 
     new_index : list
         the new_index of new SingleData.
     fill_value : float
-        fill the missing values or replace np.NaN.
+        fill the missing values or replace np.nan.
 
     Returns
     -------
@@ -106,6 +108,12 @@ class Index:
             self.index_map = self.idx_list = np.arange(idx_list)
             self._is_sorted = True
         else:
+            # Check if all elements in idx_list are of the same type
+            if not all(isinstance(x, type(idx_list[0])) for x in idx_list):
+                raise TypeError("All elements in idx_list must be of the same type")
+            # Check if all elements in idx_list are of the same datetime64 precision
+            if isinstance(idx_list[0], np.datetime64) and not all(x.dtype == idx_list[0].dtype for x in idx_list):
+                raise TypeError("All elements in idx_list must be of the same datetime64 precision")
             self.idx_list = np.array(idx_list)
             # NOTE: only the first appearance is indexed
             self.index_map = dict(zip(self.idx_list, range(len(self))))
@@ -129,7 +137,12 @@ class Index:
         if self.idx_list.dtype.type is np.datetime64:
             if isinstance(item, pd.Timestamp):
                 # This happens often when creating index based on pandas.DatetimeIndex and query with pd.Timestamp
-                return item.to_numpy()
+                return item.to_numpy().astype(self.idx_list.dtype)
+            elif isinstance(item, np.datetime64):
+                # This happens often when creating index based on np.datetime64 and query with another precision
+                return item.astype(self.idx_list.dtype)
+            # NOTE: It is hard to consider every case at first.
+            # We just try to cover part of cases to make it more user-friendly
         return item
 
     def index(self, item) -> int:
@@ -269,7 +282,7 @@ class LocIndexer:
                         if isinstance(_indexing, IndexData):
                             _indexing = _indexing.data
                         assert _indexing.ndim == 1
-                        if _indexing.dtype != np.bool:
+                        if _indexing.dtype != bool:
                             _indexing = np.array(list(index.index(i) for i in _indexing))
                     else:
                         _indexing = index.index(_indexing)
@@ -349,7 +362,6 @@ class IndexData(metaclass=index_data_ops_creator):
     loc_idx_cls = LocIndexer
 
     def __init__(self, data: np.ndarray, *indices: Union[List, pd.Index, Index]):
-
         self.data = data
         self.indices = indices
 
@@ -429,10 +441,10 @@ class IndexData(metaclass=index_data_ops_creator):
 
     # The code below could be simpler like methods in __getattribute__
     def __invert__(self):
-        return self.__class__(~self.data.astype(np.bool), *self.indices)
+        return self.__class__(~self.data.astype(bool), *self.indices)
 
     def abs(self):
-        """get the abs of data except np.NaN."""
+        """get the abs of data except np.nan."""
         tmp_data = np.absolute(self.data)
         return self.__class__(tmp_data, *self.indices)
 
@@ -554,8 +566,8 @@ class SingleData(IndexData):
                 f"The indexes of self and other do not meet the requirements of the four arithmetic operations"
             )
 
-    def reindex(self, index: Index, fill_value=np.NaN):
-        """reindex data and fill the missing value with np.NaN.
+    def reindex(self, index: Index, fill_value=np.nan) -> SingleData:
+        """reindex data and fill the missing value with np.nan.
 
         Parameters
         ----------
@@ -580,7 +592,7 @@ class SingleData(IndexData):
                 pass
         return SingleData(tmp_data, index)
 
-    def add(self, other: "SingleData", fill_value=0):
+    def add(self, other: SingleData, fill_value=0):
         # TODO: add and __add__ are a little confusing.
         # This could be a more general
         common_index = self.index | other.index
@@ -603,7 +615,7 @@ class SingleData(IndexData):
         return pd.Series(self.data, index=self.index)
 
     def __repr__(self) -> str:
-        return str(pd.Series(self.data, index=self.index))
+        return str(pd.Series(self.data, index=self.index.tolist()))
 
 
 class MultiData(IndexData):
@@ -639,4 +651,4 @@ class MultiData(IndexData):
             )
 
     def __repr__(self) -> str:
-        return str(pd.DataFrame(self.data, index=self.index, columns=self.columns))
+        return str(pd.DataFrame(self.data, index=self.index.tolist(), columns=self.columns.tolist()))

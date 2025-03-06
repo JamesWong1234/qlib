@@ -34,7 +34,7 @@ class HIST(Model):
     d_feat : int
         input dimensions for each time step
     metric : str
-        the evaluate metric used in early stop
+        the evaluation metric used in early stop
     optimizer : str
         optimizer name
     GPU : str
@@ -59,7 +59,7 @@ class HIST(Model):
         optimizer="adam",
         GPU=0,
         seed=None,
-        **kwargs
+        **kwargs,
     ):
         # Set logger.
         self.logger = get_module_logger("HIST")
@@ -160,7 +160,6 @@ class HIST(Model):
         raise ValueError("unknown loss `%s`" % self.loss)
 
     def metric_fn(self, pred, label):
-
         mask = torch.isfinite(label)
 
         if self.metric == "ic":
@@ -189,7 +188,6 @@ class HIST(Model):
         return daily_index, daily_count
 
     def train_epoch(self, x_train, y_train, stock_index):
-
         stock2concept_matrix = np.load(self.stock2concept)
         x_train_values = x_train.values
         y_train_values = np.squeeze(y_train.values)
@@ -214,7 +212,6 @@ class HIST(Model):
             self.train_optimizer.step()
 
     def test_epoch(self, data_x, data_y, stock_index):
-
         # prepare training data
         stock2concept_matrix = np.load(self.stock2concept)
         x_values = data_x.values
@@ -259,7 +256,7 @@ class HIST(Model):
             raise ValueError("Empty data from dataset, please check your dataset config.")
 
         if not os.path.exists(self.stock2concept):
-            url = "http://fintech.msra.cn/stock_data/downloads/qlib_csi300_stock2concept.npy"
+            url = "https://github.com/SunsetWolf/qlib_dataset/releases/download/v0/qlib_csi300_stock2concept.npy"
             urllib.request.urlretrieve(url, self.stock2concept)
 
         stock_index = np.load(self.stock_index, allow_pickle=True).item()
@@ -292,7 +289,9 @@ class HIST(Model):
             pretrained_model.load_state_dict(torch.load(self.model_path))
 
         model_dict = self.HIST_model.state_dict()
-        pretrained_dict = {k: v for k, v in pretrained_model.state_dict().items() if k in model_dict}
+        pretrained_dict = {
+            k: v for k, v in pretrained_model.state_dict().items() if k in model_dict  # pylint: disable=E1135
+        }
         model_dict.update(pretrained_dict)
         self.HIST_model.load_state_dict(model_dict)
         self.logger.info("Loading pretrained model Done...")

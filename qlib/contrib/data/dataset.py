@@ -63,11 +63,20 @@ def _get_date_parse_fn(target):
         get_date_parse_fn(20120101)('2017-01-01') => 20170101
     """
     if isinstance(target, int):
-        _fn = lambda x: int(str(x).replace("-", "")[:8])  # 20200201
+
+        def _fn(x):
+            return int(str(x).replace("-", "")[:8])  # 20200201
+
     elif isinstance(target, str) and len(target) == 8:
-        _fn = lambda x: str(x).replace("-", "")[:8]  # '20200201'
+
+        def _fn(x):
+            return str(x).replace("-", "")[:8]  # '20200201'
+
     else:
-        _fn = lambda x: x  # '2021-01-01'
+
+        def _fn(x):
+            return x  # '2021-01-01'
+
     return _fn
 
 
@@ -121,7 +130,6 @@ class MTSDatasetH(DatasetH):
         input_size=None,
         **kwargs,
     ):
-
         assert num_states == 0 or horizon > 0, "please specify `horizon` to avoid data leakage"
         assert memory_mode in ["sample", "daily"], "unsupported memory mode"
         assert memory_mode == "sample" or batch_size < 0, "daily memory requires daily sampling (`batch_size < 0`)"
@@ -144,7 +152,6 @@ class MTSDatasetH(DatasetH):
         super().__init__(handler, segments, **kwargs)
 
     def setup_data(self, handler_kwargs: dict = None, **kwargs):
-
         super().setup_data(**kwargs)
 
         if handler_kwargs is not None:
@@ -194,8 +201,14 @@ class MTSDatasetH(DatasetH):
 
     def _prepare_seg(self, slc, **kwargs):
         fn = _get_date_parse_fn(self._index[0][1])
-        start_date = fn(slc.start)
-        end_date = fn(slc.stop)
+        if isinstance(slc, slice):
+            start, stop = slc.start, slc.stop
+        elif isinstance(slc, (list, tuple)):
+            start, stop = slc
+        else:
+            raise NotImplementedError(f"This type of input is not supported")
+        start_date = pd.Timestamp(fn(start))
+        end_date = pd.Timestamp(fn(stop))
         obj = copy.copy(self)  # shallow copy
         # NOTE: Seriable will disable copy `self._data` so we manually assign them here
         obj._data = self._data  # reference (no copy)
@@ -273,7 +286,6 @@ class MTSDatasetH(DatasetH):
             daily_count = []  # store number of samples for each day
 
             for j in indices[i : i + batch_size]:
-
                 # normal sampling: self.batch_size > 0 => slices is a list => slices_subset is a slice
                 # daily sampling: self.batch_size < 0 => slices is a nested list => slices_subset is a list
                 slices_subset = slices[j]
@@ -282,7 +294,6 @@ class MTSDatasetH(DatasetH):
                 # each slices_subset contains a list of slices for multiple stocks
                 # NOTE: daily sampling is used in 1) eval mode, 2) train mode with self.batch_size < 0
                 if self.batch_size < 0:
-
                     # store daily index
                     idx = self._daily_index.index[j]  # daily_index.index is the index of the original data
                     daily_index.append(idx)
@@ -305,7 +316,6 @@ class MTSDatasetH(DatasetH):
                     slices_subset = [slices_subset]
 
                 for slc in slices_subset:
-
                     # legacy support for Alpha360 data by `input_size`
                     if self.input_size:
                         data.append(self._data[slc.stop - 1].reshape(self.input_size, -1).T)

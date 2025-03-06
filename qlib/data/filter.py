@@ -164,6 +164,7 @@ class SeriesDFilter(BaseDFilter):
         timestamp = []
         _lbool = None
         _ltime = None
+        _cur_start = None
         for _ts, _bool in timestamp_series.items():
             # there is likely to be NAN when the filter series don't have the
             # bool value, so we just change the NAN into False
@@ -272,8 +273,8 @@ class NameDFilter(SeriesDFilter):
     def __init__(self, name_rule_re, fstart_time=None, fend_time=None):
         """Init function for name filter class
 
-        params:
-        ------
+        Parameters
+        ----------
         name_rule_re: str
             regular expression for the name rule.
         """
@@ -325,8 +326,8 @@ class ExpressionDFilter(SeriesDFilter):
     def __init__(self, rule_expression, fstart_time=None, fend_time=None, keep=False):
         """Init function for expression filter class
 
-        params:
-        ------
+        Parameters
+        ----------
         fstart_time: str
             filter the feature starting from this time.
         fend_time: str

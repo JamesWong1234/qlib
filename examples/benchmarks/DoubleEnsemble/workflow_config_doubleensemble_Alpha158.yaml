@@ -14,9 +14,7 @@ port_analysis_config: &port_analysis_config
         class: TopkDropoutStrategy
         module_path: qlib.contrib.strategy
         kwargs:
-            signal:
-                - <MODEL> 
-                - <DATASET>
+            signal: <PRED>
             topk: 50
             n_drop: 5
     backtest:
@@ -37,7 +35,7 @@ task:
         kwargs:
             base_model: "gbm"
             loss: mse
-            num_models: 6
+            num_models: 3
             enable_sr: True
             enable_fs: True
             alpha1: 1
@@ -53,11 +51,8 @@ task:
                 - 0.4
             sub_weights:
                 - 1
-                - 0.2
-                - 0.2
-                - 0.2
-                - 0.2
-                - 0.2
+                - 1
+                - 1
             epochs: 28
             colsample_bytree: 0.8879
             learning_rate: 0.2

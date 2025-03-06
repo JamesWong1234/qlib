@@ -8,9 +8,33 @@
 [![Join the chat at https://gitter.im/Microsoft/qlib](https://badges.gitter.im/Microsoft/qlib.svg)](https://gitter.im/Microsoft/qlib?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 ## :newspaper: **What's NEW!** &nbsp;   :sparkling_heart: 
+
 Recent released features
+
+### Introducing <a href="https://github.com/microsoft/RD-Agent"><img src="docs/_static/img/rdagent_logo.png" alt="RD_Agent" style="height: 2em"></a>: LLM-Based Autonomous Evolving Agents for Industrial Data-Driven R&D
+
+We are excited to announce the release of **RD-Agent**📢, a powerful tool that supports automated factor mining and model optimization in quant investment R&D.
+
+RD-Agent is now available on [GitHub](https://github.com/microsoft/RD-Agent), and we welcome your star🌟!
+
+To learn more, please visit our [♾️Demo page](https://rdagent.azurewebsites.net/). Here, you will find demo videos in both English and Chinese to help you better understand the scenario and usage of RD-Agent.
+
+We have prepared several demo videos for you:
+| Scenario | Demo video (English) | Demo video (中文) |
+| --                      | ------    | ------    |
+| Quant Factor Mining | [Link](https://rdagent.azurewebsites.net/factor_loop?lang=en) | [Link](https://rdagent.azurewebsites.net/factor_loop?lang=zh) |
+| Quant Factor Mining from reports | [Link](https://rdagent.azurewebsites.net/report_factor?lang=en) | [Link](https://rdagent.azurewebsites.net/report_factor?lang=zh) |
+| Quant Model Optimization | [Link](https://rdagent.azurewebsites.net/model_loop?lang=en) | [Link](https://rdagent.azurewebsites.net/model_loop?lang=zh) |
+
+***
+
 | Feature | Status |
 | --                      | ------    |
+| BPQP for End-to-end learning | 📈Coming soon!([Under review](https://github.com/microsoft/qlib/pull/1863)) |
+| 🔥LLM-driven Auto Quant Factory🔥 | 🚀 Released in [♾️RD-Agent](https://github.com/microsoft/RD-Agent) on Aug 8, 2024 |
+| KRNN and Sandwich models | :chart_with_upwards_trend: [Released](https://github.com/microsoft/qlib/pull/1414/) on May 26, 2023 |
+| Release Qlib v0.9.0 | :octocat: [Released](https://github.com/microsoft/qlib/releases/tag/v0.9.0) on Dec 9, 2022 |
+| RL Learning Framework | :hammer: :chart_with_upwards_trend: Released on Nov 10, 2022. [#1332](https://github.com/microsoft/qlib/pull/1332), [#1322](https://github.com/microsoft/qlib/pull/1322), [#1316](https://github.com/microsoft/qlib/pull/1316),[#1299](https://github.com/microsoft/qlib/pull/1299),[#1263](https://github.com/microsoft/qlib/pull/1263), [#1244](https://github.com/microsoft/qlib/pull/1244), [#1169](https://github.com/microsoft/qlib/pull/1169), [#1125](https://github.com/microsoft/qlib/pull/1125), [#1076](https://github.com/microsoft/qlib/pull/1076)|
 | HIST and IGMTF models | :chart_with_upwards_trend: [Released](https://github.com/microsoft/qlib/pull/1040) on Apr 10, 2022 |
 | Qlib [notebook tutorial](https://github.com/microsoft/qlib/tree/main/examples/tutorial) | 📖 [Released](https://github.com/microsoft/qlib/pull/1037) on Apr 7, 2022 | 
 | Ibovespa index data | :rice: [Released](https://github.com/microsoft/qlib/pull/990) on Apr 6, 2022 |
@@ -32,21 +56,19 @@ Recent released features
 | High-frequency data processing example | :hammer: [Released](https://github.com/microsoft/qlib/pull/257) on Feb 5, 2021  |
 | High-frequency trading example | :chart_with_upwards_trend: [Part of code released](https://github.com/microsoft/qlib/pull/227) on Jan 28, 2021  | 
 | High-frequency data(1min) | :rice: [Released](https://github.com/microsoft/qlib/pull/221) on Jan 27, 2021 |
-| Tabnet Model | :chart_with_upwards_trend: [Released](https://github.com/microsoft/qlib/pull/205) on Jan 22, 2021 | 
+| Tabnet Model | :chart_with_upwards_trend: [Released](https://github.com/microsoft/qlib/pull/205) on Jan 22, 2021 |
 
 Features released before 2021 are not listed here.
 
 <p align="center">
-  <img src="http://fintech.msra.cn/images_v070/logo/1.png" />
+  <img src="docs/_static/img/logo/1.png" />
 </p>
 
+Qlib is an open-source, AI-oriented quantitative investment platform that aims to realize the potential, empower research, and create value using AI technologies in quantitative investment, from exploring ideas to implementing productions. Qlib supports diverse machine learning modeling paradigms, including supervised learning, market dynamics modeling, and reinforcement learning.
 
-Qlib is an AI-oriented quantitative investment platform, which aims to realize the potential, empower the research, and create the value of AI technologies in quantitative investment.
+An increasing number of SOTA Quant research works/papers in diverse paradigms are being released in Qlib to collaboratively solve key challenges in quantitative investment. For example, 1) using supervised learning to mine the market's complex non-linear patterns from rich and heterogeneous financial data, 2) modeling the dynamic nature of the financial market using adaptive concept drift technology, and 3) using reinforcement learning to model continuous investment decisions and assist investors in optimizing their trading strategies.
 
 It contains the full ML pipeline of data processing, model training, back-testing; and covers the entire chain of quantitative investment: alpha seeking, risk modeling, portfolio optimization, and order execution. 
-
-With Qlib, users can easily try ideas to create better Quant investment strategies.
-
 For more details, please refer to our paper ["Qlib: An AI-oriented Quantitative Investment Platform"](https://arxiv.org/abs/2009.11189).
 
 
@@ -67,6 +89,7 @@ For more details, please refer to our paper ["Qlib: An AI-oriented Quantitative 
             <li type="circle"><a href="#auto-quant-research-workflow">Auto Quant Research Workflow</a></li>
             <li type="circle"><a href="#building-customized-quant-research-workflow-by-code">Building Customized Quant Research Workflow by Code</a></li></ul>
         <li><a href="#quant-dataset-zoo"><strong>Quant Dataset Zoo</strong></a></li>
+        <li><a href="#learning-framework">Learning Framework</a></li>
         <li><a href="#more-about-qlib">More About Qlib</a></li>
         <li><a href="#offline-mode-and-online-mode">Offline Mode and Online Mode</a>
         <ul>
@@ -89,6 +112,7 @@ For more details, please refer to our paper ["Qlib: An AI-oriented Quantitative 
               </ul>
             </li>
           <li type="circle"><a href="#adapting-to-market-dynamics">Adapting to Market Dynamics</a></li>
+          <li type="circle"><a href="#reinforcement-learning-modeling-continuous-decisions">Reinforcement Learning: modeling continuous decisions</a></li>
           </ul>
         </li>
       </td>
@@ -105,21 +129,16 @@ Your feedbacks about the features are very important.
 # Framework of Qlib
 
 <div style="align: center">
-<img src="docs/_static/img/framework.svg" />
+<img src="docs/_static/img/framework-abstract.jpg" />
 </div>
 
-At the module level, Qlib is a platform that consists of the above components. The components are designed as loose-coupled modules, and each component could be used stand-alone.
+The high-level framework of Qlib can be found above(users can find the [detailed framework](https://qlib.readthedocs.io/en/latest/introduction/introduction.html#framework) of Qlib's design when getting into nitty gritty).
+The components are designed as loose-coupled modules, and each component could be used stand-alone.
 
-| Name                   | Description                                                                                                                                                                                                                                                                                                                                                             |
-| ------                 | -----                                                                                                                                                                                                                                                                                                                                                                   |
-| `Infrastructure` layer | `Infrastructure` layer provides underlying support for Quant research. `DataServer` provides a high-performance infrastructure for users to manage and retrieve raw data. `Trainer` provides a flexible interface to control the training process of models, which enable algorithms to control the training process.                                                       |
-| `Workflow` layer       | `Workflow` layer covers the whole workflow of quantitative investment. `Information Extractor` extracts data for models. `Forecast Model` focuses on producing all kinds of forecast signals (e.g. _alpha_, risk) for other modules. With these signals `Decision Generator` will generate the target trading decisions(i.e. portfolio, orders)  to be executed by `Execution Env` (i.e. the trading market).  There may be multiple levels of `Trading Agent` and `Execution Env` (e.g. an _order executor trading agent and intraday order execution environment_ could behave like an interday trading environment and nested in  _daily portfolio management trading agent and interday trading environment_  ) |
-| `Interface` layer      | `Interface` layer tries to present a user-friendly interface for the underlying system. `Analyser` module will provide users detailed analysis reports of forecasting signals, portfolios and execution results                                                                                                                                                                 |
-
-* The modules with hand-drawn style are under development and will be released in the future.
-* The modules with dashed borders are highly user-customizable and extendible.
-
-(p.s. framework image is created with https://draw.io/)
+Qlib provides a strong infrastructure to support Quant research. [Data](https://qlib.readthedocs.io/en/latest/component/data.html) is always an important part.
+A strong learning framework is designed to support diverse learning paradigms (e.g. [reinforcement learning](https://qlib.readthedocs.io/en/latest/component/rl.html), [supervised learning](https://qlib.readthedocs.io/en/latest/component/workflow.html#model-section)) and patterns at different levels(e.g. [market dynamic modeling](https://qlib.readthedocs.io/en/latest/component/meta.html)).
+By modeling the market, [trading strategies](https://qlib.readthedocs.io/en/latest/component/strategy.html) will generate trade decisions that will be executed. Multiple trading strategies and executors in different levels or granularities can be [nested to be optimized and run together](https://qlib.readthedocs.io/en/latest/component/highfreq.html).
+At last, a comprehensive [analysis](https://qlib.readthedocs.io/en/latest/component/report.html) will be provided and the model can be [served online](https://qlib.readthedocs.io/en/latest/component/online.html) in a low cost.
 
 
 # Quick Start
@@ -134,17 +153,17 @@ Here is a quick **[demo](https://terminalizer.com/view/3f24561a4470)** shows how
 ## Installation
 
 This table demonstrates the supported Python version of `Qlib`:
-|               | install with pip           | install from source  | plot |
-| ------------- |:---------------------:|:--------------------:|:----:|
-| Python 3.7    | :heavy_check_mark:    | :heavy_check_mark:   | :heavy_check_mark: |
+|               | install with pip      | install from source  |        plot        |
+| ------------- |:---------------------:|:--------------------:|:------------------:|
 | Python 3.8    | :heavy_check_mark:    | :heavy_check_mark:   | :heavy_check_mark: |
-| Python 3.9    | :x:                   | :heavy_check_mark:   | :x: |
+| Python 3.9    | :heavy_check_mark:    | :heavy_check_mark:   | :heavy_check_mark: |
+| Python 3.10   | :heavy_check_mark:    | :heavy_check_mark:   | :heavy_check_mark: |
+| Python 3.11   | :heavy_check_mark:    | :heavy_check_mark:   | :heavy_check_mark: |
+| Python 3.12   | :heavy_check_mark:    | :heavy_check_mark:   | :heavy_check_mark: |
 
 **Note**: 
-1. **Conda** is suggested for managing your Python environment.
-1. Please pay attention that installing cython in Python 3.6 will raise some error when installing ``Qlib`` from source. If users use Python 3.6 on their machines, it is recommended to *upgrade* Python to version 3.7 or use `conda`'s Python to install ``Qlib`` from source.
-1. For Python 3.9, `Qlib` supports running workflows such as training models, doing backtest and plot most of the related figures (those included in [notebook](examples/workflow_by_code.ipynb)). However, plotting for the *model performance* is not supported for now and we will fix this when the dependent packages are upgraded in the future.
-1. `Qlib`Requires `tables` package, `hdf5` in tables does not support python3.9. 
+1. **Conda** is suggested for managing your Python environment. In some cases, using Python outside of a `conda` environment may result in missing header files, causing the installation failure of certain packages.
+2. Please pay attention that installing cython in Python 3.6 will raise some error when installing ``Qlib`` from source. If users use Python 3.6 on their machines, it is recommended to *upgrade* Python to version 3.8 or higher, or use `conda`'s Python to install ``Qlib`` from source.
 
 ### Install with pip
 Users can easily install ``Qlib`` by pip according to the following command.
@@ -162,20 +181,48 @@ Also, users can install the latest dev version ``Qlib`` by the source code accor
 
   ```bash
   pip install numpy
-  pip install --upgrade  cython
+  pip install --upgrade cython
   ```
 
 * Clone the repository and install ``Qlib`` as follows.
     ```bash
     git clone https://github.com/microsoft/qlib.git && cd qlib
-    pip install .
+    pip install .  # `pip install -e .[dev]` is recommended for development. check details in docs/developer/code_standard_and_dev_guide.rst
     ```
-  **Note**:  You can install Qlib with `python setup.py install` as well. But it is not the recommanded approach. It will skip `pip` and cause obscure problems. For example, **only** the command ``pip install .`` **can** overwrite the stable version installed by ``pip install pyqlib``, while the command ``python setup.py install`` **can't**.
 
-**Tips**: If you fail to install `Qlib` or run the examples in your environment,  comparing your steps and the [CI workflow](.github/workflows/test.yml) may help you find the problem.
+**Tips**: If you fail to install `Qlib` or run the examples in your environment,  comparing your steps and the [CI workflow](.github/workflows/test_qlib_from_source.yml) may help you find the problem.
+
+**Tips for Mac**: If you are using Mac with M1, you might encounter issues in building the wheel for LightGBM, which is due to missing dependencies from OpenMP. To solve the problem, install openmp first with ``brew install libomp`` and then run ``pip install .`` to build it successfully. 
 
 ## Data Preparation
+❗ Due to more restrict data security policy. The offical dataset is disabled temporarily. You can try [this data source](https://github.com/chenditc/investment_data/releases) contributed by the community.
+Here is an example to download the latest data.
+```bash
+wget https://github.com/chenditc/investment_data/releases/latest/download/qlib_bin.tar.gz
+mkdir -p ~/.qlib/qlib_data/cn_data
+tar -zxvf qlib_bin.tar.gz -C ~/.qlib/qlib_data/cn_data --strip-components=2
+rm -f qlib_bin.tar.gz
+```
+
+The official dataset below will resume in short future.
+
+
+----
+
 Load and prepare data by running the following code:
+
+### Get with module
+  ```bash
+  # get 1d data
+  python -m qlib.run.get_data qlib_data --target_dir ~/.qlib/qlib_data/cn_data --region cn
+
+  # get 1min data
+  python -m qlib.run.get_data qlib_data --target_dir ~/.qlib/qlib_data/cn_data_1min --region cn --interval 1min
+
+  ```
+
+### Get from source
+
   ```bash
   # get 1d data
   python scripts/get_data.py qlib_data --target_dir ~/.qlib/qlib_data/cn_data --region cn
@@ -197,6 +244,8 @@ We recommend users to prepare their own data if they have a high-quality dataset
   > 
   > It is recommended that users update the data manually once (--trading_date 2021-05-25) and then set it to update automatically.
   >
+  > **NOTE**: Users can't incrementally  update data based on the offline data provided by Qlib(some fields are removed to reduce the data size). Users should use [yahoo collector](https://github.com/microsoft/qlib/tree/main/scripts/data_collector/yahoo#automatic-update-of-daily-frequency-datafrom-yahoo-finance) to download Yahoo data from scratch and then incrementally update it.
+  > 
   > For more information, please refer to: [yahoo collector](https://github.com/microsoft/qlib/tree/main/scripts/data_collector/yahoo#automatic-update-of-daily-frequency-datafrom-yahoo-finance)
 
   * Automatic update of data to the "qlib" directory each trading day(Linux)
@@ -215,6 +264,16 @@ We recommend users to prepare their own data if they have a high-quality dataset
       * *trading_date*: start of trading day
       * *end_date*: end of trading day(not included)
 
+### Checking the health of the data
+  * We provide a script to check the health of the data, you can run the following commands to check whether the data is healthy or not.
+    ```
+    python scripts/check_data_health.py check_data --qlib_dir ~/.qlib/qlib_data/cn_data
+    ```
+  * Of course, you can also add some parameters to adjust the test results, such as this.
+    ```
+    python scripts/check_data_health.py check_data --qlib_dir ~/.qlib/qlib_data/cn_data --missing_data_num 30055 --large_step_threshold_volume 94485 --large_step_threshold_price 20
+    ```
+  * If you want more information about `check_data_health`, please refer to the [documentation](https://qlib.readthedocs.io/en/latest/component/data.html#checking-the-health-of-the-data).
 
 <!-- 
 - Run the initialization code and get stock data:
@@ -242,6 +301,38 @@ We recommend users to prepare their own data if they have a high-quality dataset
   print(D.features(instruments, fields, start_time='2010-01-01', end_time='2017-12-31', freq='day').head())
   ```
  -->
+
+## Docker images
+1. Pulling a docker image from a docker hub repository
+    ```bash
+    docker pull pyqlib/qlib_image_stable:stable
+    ```
+2. Start a new Docker container
+    ```bash
+    docker run -it --name <container name> -v <Mounted local directory>:/app qlib_image_stable
+    ```
+3. At this point you are in the docker environment and can run the qlib scripts. An example:
+    ```bash
+    >>> python scripts/get_data.py qlib_data --name qlib_data_simple --target_dir ~/.qlib/qlib_data/cn_data --interval 1d --region cn
+    >>> python qlib/workflow/cli.py examples/benchmarks/LightGBM/workflow_config_lightgbm_Alpha158.yaml
+    ```
+4. Exit the container
+    ```bash
+    >>> exit
+    ```
+5. Restart the container
+    ```bash
+    docker start -i -a <container name>
+    ```
+6. Stop the container
+    ```bash
+    docker stop <container name>
+    ```
+7. Delete the container
+    ```bash
+    docker rm <container name>
+    ```
+8. If you want to know more information, please refer to the [documentation](https://qlib.readthedocs.io/en/latest/developer/how_to_build_image.html).
 
 ## Auto Quant Research Workflow
 Qlib provides a tool named `qrun` to run the whole workflow automatically (including building dataset, training models, backtest and evaluation). You can start an auto quant research workflow and have a graphical reports analysis according to the following steps: 
@@ -276,22 +367,22 @@ Qlib provides a tool named `qrun` to run the whole workflow automatically (inclu
     ```
     Here are detailed documents for `qrun` and [workflow](https://qlib.readthedocs.io/en/latest/component/workflow.html).
 
-2. Graphical Reports Analysis: Run `examples/workflow_by_code.ipynb` with `jupyter notebook` to get graphical reports
+2. Graphical Reports Analysis: First, run `python -m pip install .[analysis]` to install the required dependencies. Then run `examples/workflow_by_code.ipynb` with `jupyter notebook` to get graphical reports. 
     - Forecasting signal (model prediction) analysis
       - Cumulative Return of groups
-      ![Cumulative Return](http://fintech.msra.cn/images_v070/analysis/analysis_model_cumulative_return.png?v=0.1)
+      ![Cumulative Return](https://github.com/microsoft/qlib/blob/main/docs/_static/img/analysis/analysis_model_cumulative_return.png)
       - Return distribution
-      ![long_short](http://fintech.msra.cn/images_v070/analysis/analysis_model_long_short.png?v=0.1)
+      ![long_short](https://github.com/microsoft/qlib/blob/main/docs/_static/img/analysis/analysis_model_long_short.png)
       - Information Coefficient (IC)
-      ![Information Coefficient](http://fintech.msra.cn/images_v070/analysis/analysis_model_IC.png?v=0.1)
-      ![Monthly IC](http://fintech.msra.cn/images_v070/analysis/analysis_model_monthly_IC.png?v=0.1)
-      ![IC](http://fintech.msra.cn/images_v070/analysis/analysis_model_NDQ.png?v=0.1)
+      ![Information Coefficient](https://github.com/microsoft/qlib/blob/main/docs/_static/img/analysis/analysis_model_IC.png)
+      ![Monthly IC](https://github.com/microsoft/qlib/blob/main/docs/_static/img/analysis/analysis_model_monthly_IC.png)
+      ![IC](https://github.com/microsoft/qlib/blob/main/docs/_static/img/analysis/analysis_model_NDQ.png)
       - Auto Correlation of forecasting signal (model prediction)
-      ![Auto Correlation](http://fintech.msra.cn/images_v070/analysis/analysis_model_auto_correlation.png?v=0.1)
+      ![Auto Correlation](https://github.com/microsoft/qlib/blob/main/docs/_static/img/analysis/analysis_model_auto_correlation.png)
 
     - Portfolio analysis
       - Backtest return
-      ![Report](http://fintech.msra.cn/images_v070/analysis/report.png?v=0.1)
+      ![Report](https://github.com/microsoft/qlib/blob/main/docs/_static/img/analysis/report.png)
       <!-- 
       - Score IC
       ![Score IC](docs/_static/img/score_ic.png)
@@ -308,7 +399,7 @@ Qlib provides a tool named `qrun` to run the whole workflow automatically (inclu
 The automatic workflow may not suit the research workflow of all Quant researchers. To support a flexible Quant research workflow, Qlib also provides a modularized interface to allow researchers to build their own workflow by code. [Here](examples/workflow_by_code.ipynb) is a demo for customized Quant research workflow by code.
 
 # Main Challenges & Solutions in Quant Research
-Quant investment is an very unique scenario with lots of key challenges to be solved.
+Quant investment is a very unique scenario with lots of key challenges to be solved.
 Currently, Qlib provides some solutions for several of them.
 
 ## Forecasting: Finding Valuable Signals/Patterns
@@ -342,10 +433,12 @@ Here is a list of models built on `Qlib`.
 - [ADD based on pytorch (Hongshun Tang, et al.2020)](examples/benchmarks/ADD/)
 - [IGMTF based on pytorch (Wentao Xu, et al.2021)](examples/benchmarks/IGMTF/)
 - [HIST based on pytorch (Wentao Xu, et al.2021)](examples/benchmarks/HIST/)
+- [KRNN based on pytorch](examples/benchmarks/KRNN/)
+- [Sandwich based on pytorch](examples/benchmarks/Sandwich/)
 
 Your PR of new Quant models is highly welcomed.
 
-The performance of each model on the `Alpha158` and `Alpha360` dataset can be found [here](examples/benchmarks/README.md).
+The performance of each model on the `Alpha158` and `Alpha360` datasets can be found [here](examples/benchmarks/README.md).
 
 ### Run a single model
 All the models listed above are runnable with ``Qlib``. Users can find the config files we provide and some details about the model through the [benchmarks](examples/benchmarks) folder. More information can be retrieved at the model files listed above.
@@ -378,6 +471,17 @@ Here is a list of solutions built on `Qlib`.
 - [Rolling Retraining](examples/benchmarks_dynamic/baseline/)
 - [DDG-DA on pytorch (Wendi, et al. AAAI 2022)](examples/benchmarks_dynamic/DDG-DA/)
 
+##  Reinforcement Learning: modeling continuous decisions
+Qlib now supports reinforcement learning, a feature designed to model continuous investment decisions. This functionality assists investors in optimizing their trading strategies by learning from interactions with the environment to maximize some notion of cumulative reward.
+
+Here is a list of solutions built on `Qlib` categorized by scenarios.
+
+### [RL for order execution](examples/rl_order_execution)
+[Here](https://qlib.readthedocs.io/en/latest/component/rl/overall.html#order-execution) is the introduction of this scenario.  All the methods below are compared [here](examples/rl_order_execution).
+- [TWAP](examples/rl_order_execution/exp_configs/backtest_twap.yml)
+- [PPO: "An End-to-End Optimal Trade Execution Framework based on Proximal Policy Optimization", IJCAL 2020](examples/rl_order_execution/exp_configs/backtest_ppo.yml)
+- [OPDS: "Universal Trading for Order Execution with Oracle Policy Distillation", AAAI 2021](examples/rl_order_execution/exp_configs/backtest_opds.yml)
+
 # Quant Dataset Zoo
 Dataset plays a very important role in Quant. Here is a list of the datasets built on `Qlib`:
 
@@ -388,6 +492,17 @@ Dataset plays a very important role in Quant. Here is a list of the datasets bui
 
 [Here](https://qlib.readthedocs.io/en/latest/advanced/alpha.html) is a tutorial to build dataset with `Qlib`.
 Your PR to build new Quant dataset is highly welcomed.
+
+
+# Learning Framework
+Qlib is high customizable and a lot of its components are learnable.
+The learnable components are instances of `Forecast Model` and `Trading Agent`. They are learned based on the `Learning Framework` layer and then applied to multiple scenarios in `Workflow` layer.
+The learning framework leverages the `Workflow` layer as well(e.g. sharing `Information Extractor`, creating environments based on `Execution Env`).
+
+Based on learning paradigms, they can be categorized into reinforcement learning and supervised learning.
+- For supervised learning, the detailed docs can be found [here](https://qlib.readthedocs.io/en/latest/component/model.html).
+- For reinforcement learning, the detailed docs can be found [here](https://qlib.readthedocs.io/en/latest/component/rl.html). Qlib's RL learning framework leverages `Execution Env` in `Workflow` layer to create environments.  It's worth noting that `NestedExecutor` is supported as well. This empowers users to optimize different level of strategies/models/agents together (e.g. optimizing an order execution strategy for a specific portfolio management strategy).
+
 
 # More About Qlib
 If you want to have a quick glance at the most frequently used components of qlib, you can try notebooks [here](examples/tutorial/).
@@ -446,7 +561,7 @@ Qlib data are stored in a compact format, which is efficient to be combined into
 Join IM discussion groups:
 |[Gitter](https://gitter.im/Microsoft/qlib)|
 |----|
-|![image](http://fintech.msra.cn/images_v070/qrcode/gitter_qr.png)|
+|![image](https://github.com/microsoft/qlib/blob/main/docs/_static/img/qrcode/gitter_qr.png)|
 
 # Contributing
 We appreciate all contributions and thank all the contributors!
@@ -458,7 +573,7 @@ Before we released Qlib as an open-source project on Github in Sep 2020, Qlib is
 
 This project welcomes contributions and suggestions.  
 **Here are some 
-[code standards](docs/developer/code_standard.rst) for submiting a pull request.**
+[code standards and development guidance](docs/developer/code_standard_and_dev_guide.rst) for submiting a pull request.**
 
 Making contributions is not a hard thing. Solving an issue(maybe just answering a question raised in [issues list](https://github.com/microsoft/qlib/issues) or [gitter](https://gitter.im/Microsoft/qlib)), fixing/issuing a bug, improving the documents and even fixing a typo are important contributions to Qlib.
 
@@ -474,7 +589,7 @@ If you don't know how to start to contribute, you can refer to the following exa
 | Docs | [Improve docs quality](https://github.com/microsoft/qlib/pull/797/files) ;  [Fix a typo](https://github.com/microsoft/qlib/pull/774) | 
 | Feature |  Implement a [requested feature](https://github.com/microsoft/qlib/projects) like [this](https://github.com/microsoft/qlib/pull/754); [Refactor interfaces](https://github.com/microsoft/qlib/pull/539/files) |
 | Dataset | [Add a dataset](https://github.com/microsoft/qlib/pull/733) | 
-| Models |  [Implement a new model](https://github.com/microsoft/qlib/pull/689) | 
+| Models |  [Implement a new model](https://github.com/microsoft/qlib/pull/689), [some instructions to contribute models](https://github.com/microsoft/qlib/tree/main/examples/benchmarks#contributing) |
 
 [Good first issues](https://github.com/microsoft/qlib/labels/good%20first%20issue) are labelled to indicate that they are easy to start your contributions.
 

@@ -10,6 +10,7 @@
 
 > *Please pay **ATTENTION** that the data is collected from [Yahoo Finance](https://finance.yahoo.com/lookup) and the data might not be perfect. We recommend users to prepare their own data if they have high-quality dataset. For more information, users can refer to the [related document](https://qlib.readthedocs.io/en/latest/component/data.html#converting-csv-format-into-qlib-format)*
 
+**NOTE**:  Yahoo! Finance has blocked the access from China. Please change your network if you want to use the Yahoo data crawler.
 
 >  **Examples of abnormal data**
 
@@ -35,7 +36,7 @@ pip install -r requirements.txt
     - `target_dir`: save dir, by default *~/.qlib/qlib_data/cn_data*
     - `version`: dataset version, value from [`v1`, `v2`], by default `v1`
       - `v2` end date is *2021-06*, `v1` end date is *2020-09*
-      - user can append data to `v2`: [automatic update of daily frequency data](#automatic-update-of-daily-frequency-datafrom-yahoo-finance)
+      - If users want to incrementally update data, they need to use yahoo collector to [collect data from scratch](#collector-yahoofinance-data-to-qlib).
       - **the [benchmarks](https://github.com/microsoft/qlib/tree/main/examples/benchmarks) for qlib use `v1`**, *due to the unstable access to historical data by YahooFinance, there are some differences between `v2` and `v1`*
     - `interval`: `1d` or `1min`, by default `1d`
     - `region`: `cn` or `us` or `in`, by default `cn`
@@ -61,6 +62,8 @@ pip install -r requirements.txt
 > collector *YahooFinance* data and *dump* into `qlib` format.
 > If the above ready-made data can't meet users' requirements,  users can follow this section to crawl the latest data and convert it to qlib-data.
   1. download data to csv: `python scripts/data_collector/yahoo/collector.py download_data`
+     
+     This will download the raw data such as high, low, open, close, adjclose price from yahoo to a local directory. One file per symbol.
 
      - parameters:
           - `source_dir`: save the directory
@@ -98,6 +101,10 @@ pip install -r requirements.txt
           ```
   2. normalize data: `python scripts/data_collector/yahoo/collector.py normalize_data`
      
+     This will:
+     1. Normalize high, low, close, open price using adjclose.
+     2. Normalize the high, low, close, open price so that the first valid trading date's close price is 1. 
+
      - parameters:
           - `source_dir`: csv directory
           - `normalize_dir`: result directory
@@ -114,7 +121,7 @@ pip install -r requirements.txt
         
                 qlib_data_1d can be obtained like this:
                     $ python scripts/get_data.py qlib_data --target_dir <qlib_data_1d_dir> --interval 1d
-                    $ python scripts/data_collector/yahoo/collector.py update_data_to_bin --qlib_data_1d_dir <qlib_data_1d_dir> --trading_date 2021-06-01
+                    $ python scripts/data_collector/yahoo/collector.py update_data_to_bin --qlib_data_1d_dir <qlib_data_1d_dir> --end_date <end_date>
                 or:
                     download 1d data from YahooFinance
             
@@ -134,6 +141,8 @@ pip install -r requirements.txt
         python collector.py normalize_data --qlib_data_1d_dir ~/.qlib/qlib_data/br_data --source_dir ~/.qlib/stock_data/source/br_data_1min --normalize_dir ~/.qlib/stock_data/source/br_1min_nor --region BR --interval 1min
         ```
   3. dump data: `python scripts/dump_bin.py dump_all`
+    
+     This will convert the normalized csv in `feature` directory as numpy array and store the normalized data one file per column and one symbol per directory. 
     
      - parameters:
        - `csv_path`: stock data path or directory, **normalize result(normalize_dir)**
@@ -156,6 +165,9 @@ pip install -r requirements.txt
 
 ### Automatic update of daily frequency data(from yahoo finance)
   > It is recommended that users update the data manually once (--trading_date 2021-05-25) and then set it to update automatically.
+  >
+  > **NOTE**: Users can't incrementally  update data based on the offline data provided by Qlib(some fields are removed to reduce the data size). Users should use [yahoo collector](https://github.com/microsoft/qlib/tree/main/scripts/data_collector/yahoo#automatic-update-of-daily-frequency-datafrom-yahoo-finance) to download Yahoo data from scratch and then incrementally update it.
+  > 
 
   * Automatic update of data to the "qlib" directory each trading day(Linux)
       * use *crontab*: `crontab -e`
@@ -168,9 +180,8 @@ pip install -r requirements.txt
 
   * Manual update of data
       ```
-      python scripts/data_collector/yahoo/collector.py update_data_to_bin --qlib_data_1d_dir <user data dir> --trading_date <start date> --end_date <end date>
+      python scripts/data_collector/yahoo/collector.py update_data_to_bin --qlib_data_1d_dir <user data dir> --end_date <end date>
       ```
-      * `trading_date`: start of trading day
       * `end_date`: end of trading day(not included)
       * `check_data_length`: check the number of rows per *symbol*, by default `None`
         > if `len(symbol_df) < check_data_length`, it will be re-fetched, with the number of re-fetches coming from the `max_collector_count` parameter
@@ -179,10 +190,10 @@ pip install -r requirements.txt
       * `source_dir`: The directory where the raw data collected from the Internet is saved, default "Path(__file__).parent/source"
       * `normalize_dir`: Directory for normalize data, default "Path(__file__).parent/normalize"
       * `qlib_data_1d_dir`: the qlib data to be updated for yahoo, usually from: [download qlib data](https://github.com/microsoft/qlib/tree/main/scripts#download-cn-data)
-      * `trading_date`: trading days to be updated, by default ``datetime.datetime.now().strftime("%Y-%m-%d")``
       * `end_date`: end datetime, default ``pd.Timestamp(trading_date + pd.Timedelta(days=1))``; open interval(excluding end)
       * `region`: region, value from ["CN", "US"], default "CN"
-
+      * `interval`: interval, default "1d"(Currently only supports 1d data)
+      * `exists_skip`: exists skip, by default False
 
 ## Using qlib data
 

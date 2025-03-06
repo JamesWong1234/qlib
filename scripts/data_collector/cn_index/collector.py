@@ -4,7 +4,6 @@
 import re
 import abc
 import sys
-import datetime
 from io import BytesIO
 from typing import List, Iterable
 from pathlib import Path
@@ -24,7 +23,9 @@ from data_collector.utils import get_calendar_list, get_trading_date_by_shift, d
 from data_collector.utils import get_instruments
 
 
-NEW_COMPANIES_URL = "https://csi-web-dev.oss-cn-shanghai-finance-1-pub.aliyuncs.com/static/html/csindex/public/uploads/file/autofile/cons/{index_code}cons.xls"
+NEW_COMPANIES_URL = (
+    "https://oss-ch.csindex.com.cn/static/html/csindex/public/uploads/file/autofile/cons/{index_code}cons.xls"
+)
 
 
 INDEX_CHANGES_URL = "https://www.csindex.com.cn/csindex-home/search/search-content?lang=cn&searchInput=%E5%85%B3%E4%BA%8E%E8%B0%83%E6%95%B4%E6%B2%AA%E6%B7%B1300%E5%92%8C%E4%B8%AD%E8%AF%81%E9%A6%99%E6%B8%AF100%E7%AD%89%E6%8C%87%E6%95%B0%E6%A0%B7%E6%9C%AC&pageNum={page_num}&pageSize={page_size}&sortField=date&dateRange=all&contentType=announcement"
@@ -39,7 +40,7 @@ def retry_request(url: str, method: str = "get", exclude_status: List = None):
     if exclude_status is None:
         exclude_status = []
     method_func = getattr(requests, method)
-    _resp = method_func(url, headers=REQ_HEADERS)
+    _resp = method_func(url, headers=REQ_HEADERS, timeout=None)
     _status = _resp.status_code
     if _status not in exclude_status and _status != 200:
         raise ValueError(f"response status: {_status}, url={url}")
@@ -90,7 +91,6 @@ class CSIIndex(IndexBase):
         raise NotImplementedError("rewrite index_code")
 
     @property
-    @abc.abstractmethod
     def html_table_index(self) -> int:
         """Which table of changes in html
 
@@ -98,7 +98,7 @@ class CSIIndex(IndexBase):
         CSI100: 1
         :return:
         """
-        raise NotImplementedError()
+        raise NotImplementedError("rewrite html_table_index")
 
     def format_datetime(self, inst_df: pd.DataFrame) -> pd.DataFrame:
         """formatting the datetime in an instrument
@@ -184,12 +184,7 @@ class CSIIndex(IndexBase):
         df = pd.DataFrame()
         _tmp_count = 0
         for _df in pd.read_html(content):
-            if (
-                _df.shape[-1] != 4
-                or _df.iloc[2:,][0].str.contains(
-                    "."
-                )[2]
-            ):
+            if _df.shape[-1] != 4 or _df.isnull().loc(0)[0][0]:
                 continue
             _tmp_count += 1
             if self.html_table_index + 1 > _tmp_count:
@@ -341,8 +336,8 @@ class CSI300Index(CSIIndex):
         return pd.Timestamp("2005-01-01")
 
     @property
-    def html_table_index(self):
-        return 1
+    def html_table_index(self) -> int:
+        return 0
 
 
 class CSI100Index(CSIIndex):
@@ -355,8 +350,8 @@ class CSI100Index(CSIIndex):
         return pd.Timestamp("2006-05-29")
 
     @property
-    def html_table_index(self):
-        return 2
+    def html_table_index(self) -> int:
+        return 1
 
 
 class CSI500Index(CSIIndex):
@@ -367,10 +362,6 @@ class CSI500Index(CSIIndex):
     @property
     def bench_start_date(self) -> pd.Timestamp:
         return pd.Timestamp("2007-01-15")
-
-    @property
-    def html_table_index(self) -> int:
-        return 0
 
     def get_changes(self) -> pd.DataFrame:
         """get companies changes
@@ -404,23 +395,17 @@ class CSI500Index(CSIIndex):
                 type: str, value from ["add", "remove"]
         """
         bs.login()
-        today = pd.datetime.now()
+        today = pd.Timestamp.now()
         date_range = pd.DataFrame(pd.date_range(start="2007-01-15", end=today, freq="7D"))[0].dt.date
         ret_list = []
-        col = ["date", "symbol", "code_name"]
         for date in tqdm(date_range, desc="Download CSI500"):
-            rs = bs.query_zz500_stocks(date=str(date))
-            zz500_stocks = []
-            while (rs.error_code == "0") & rs.next():
-                zz500_stocks.append(rs.get_row_data())
-            result = pd.DataFrame(zz500_stocks, columns=col)
-            result["symbol"] = result["symbol"].apply(lambda x: x.replace(".", "").upper())
             result = self.get_data_from_baostock(date)
             ret_list.append(result[["date", "symbol"]])
         bs.logout()
         return pd.concat(ret_list, sort=False)
 
-    def get_data_from_baostock(self, date) -> pd.DataFrame:
+    @staticmethod
+    def get_data_from_baostock(date) -> pd.DataFrame:
         """
         Data source: http://baostock.com/baostock/index.php/%E4%B8%AD%E8%AF%81500%E6%88%90%E5%88%86%E8%82%A1
         Avoid a large number of parallel data acquisition,
@@ -462,18 +447,17 @@ class CSI500Index(CSIIndex):
                 end_date: pd.Timestamp
         """
         logger.info("get new companies......")
-        today = datetime.date.today()
+        today = pd.Timestamp.now().normalize()
         bs.login()
-        result = self.get_data_from_baostock(today)
+        result = self.get_data_from_baostock(today.strftime("%Y-%m-%d"))
         bs.logout()
         df = result[["date", "symbol"]]
         df.columns = [self.END_DATE_FIELD, self.SYMBOL_FIELD_NAME]
-        df[self.END_DATE_FIELD] = pd.to_datetime(df[self.END_DATE_FIELD].astype(str))
+        df[self.END_DATE_FIELD] = today
         df[self.START_DATE_FIELD] = self.bench_start_date
         logger.info("end of get new companies.")
         return df
 
 
 if __name__ == "__main__":
-    get_instruments(index_name="CSI300", qlib_dir="~/.qlib/qlib_data/cn_data", method="parse_instruments")
-    # fire.Fire(get_instruments)
+    fire.Fire(get_instruments)
